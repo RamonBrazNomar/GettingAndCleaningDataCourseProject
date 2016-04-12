@@ -124,15 +124,14 @@ close(actvCon)
 
 names(actv) <- c("actvID","actvName")
 
-namedActv <- merge(data["actvID"], actv, by="actvID")
-#I chose the form data["actvID"] because it had to be a data.frame to work properly
+dataNamedActv <- merge(data, actv, by ="actvID")
 
-data <- mutate(data, actvID = namedActv$actvName)
+data <- select(dataNamedActv[,c(2,69,3:68,1)], -actvID)
+#had to reorganize columns to put it into similar format as before
 
 
 ################ Renaming variables properly
 
-names(data)
 
 #eliminating the starting number
 changedNames <- strsplit(names(data)," ")
@@ -160,7 +159,7 @@ changedNames <- sub("-Y$","-Y-axis", changedNames)
 changedNames <- sub("-Z$","-Z-axis", changedNames)
 
 changedNames <- sub("subjID","SubjectID",changedNames)
-changedNames <- sub("actvID","ActivityName",changedNames)
+changedNames <- sub("actvName","ActivityName",changedNames)
 
 names(data) <- changedNames
 
@@ -170,6 +169,8 @@ names(data) <- changedNames
 summaryData <- data %>% group_by(SubjectID, ActivityName) %>%
   summarize_each(funs(mean))
 
+names(summaryData) <- c(names(summaryData)[1:2]
+                        ,paste0("AverageOf",names(summaryData)[3:68]))
 
 ################ Writing the final files
 
